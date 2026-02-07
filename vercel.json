@@ -1,6 +1,12 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+
+  "routes": [
+    { "src": "/ads", "dest": "/ads.html" },
+    { "src": "/ads/", "dest": "/ads.html" }
+  ],
+
   "headers": [
     {
       "source": "/(.*)",
