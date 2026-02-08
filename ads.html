@@ -10,7 +10,8 @@
     content="On-the-ground execution support in China for US businesses. Supplier follow-up, factory coordination, inspections, production tracking, and local execution."
   />
 
-  <link rel="canonical" href="https://www.chinaexecution.com/ads" />
+  <!-- canonical 与 Ads Final URL 统一（无 www） -->
+  <link rel="canonical" href="https://chinaexecution.com/ads" />
   <link rel="stylesheet" href="/styles.css" />
 
   <style>
@@ -27,15 +28,9 @@
       padding: 40px 20px;
       line-height: 1.65;
     }
-    h1, h2 {
-      margin-top: 0;
-    }
-    p {
-      margin: 10px 0;
-    }
-    ul, ol {
-      margin: 10px 0 20px 20px;
-    }
+    h1, h2 { margin-top: 0; }
+    p { margin: 10px 0; }
+    ul, ol { margin: 10px 0 20px 20px; }
     .box {
       border: 1px solid rgba(0,0,0,0.12);
       border-radius: 12px;
@@ -47,9 +42,7 @@
       gap: 16px;
     }
     @media (min-width: 860px) {
-      .grid {
-        grid-template-columns: 1fr 1fr;
-      }
+      .grid { grid-template-columns: 1fr 1fr; }
     }
     label {
       display: block;
@@ -73,19 +66,7 @@
       cursor: pointer;
       font-size: 15px;
     }
-    button:hover {
-      background: #f5f5f5;
-    }
-    .cta-link {
-      display: inline-block;
-      margin-right: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid rgba(0,0,0,0.2);
-      text-decoration: none;
-      color: #111;
-      font-size: 14px;
-    }
+    button:hover { background: #f5f5f5; }
     .footer-links {
       margin-top: 26px;
       font-size: 13px;
@@ -96,12 +77,8 @@
       color: #111;
       text-decoration: none;
     }
-    .footer-links a:hover {
-      text-decoration: underline;
-    }
-    small {
-      opacity: 0.8;
-    }
+    .footer-links a:hover { text-decoration: underline; }
+    small { opacity: 0.8; }
   </style>
 </head>
 
@@ -155,18 +132,10 @@
         Describe what you need done in China. We will reply with scope and next steps.
       </p>
 
-      <form
-        action="https://formspree.io/f/xzdvaznv"
-        method="POST"
-      >
+      <form action="https://formspree.io/f/xzdvaznv" method="POST">
         <label>
           Your email
-          <input
-            type="email"
-            name="email"
-            placeholder="name@company.com"
-            required
-          />
+          <input type="email" name="email" placeholder="name@company.com" required />
         </label>
 
         <label>
@@ -180,23 +149,25 @@
         </label>
 
         <input type="hidden" name="source" value="google-ads-landing-page" />
+        <input type="hidden" name="_next" value="https://chinaexecution.com/thank-you.html" />
 
-        <input
-          type="hidden"
-          name="_next"
-          value="https://www.chinaexecution.com/thank-you.html"
-        />
-
-        <button type="submit">Send Request</button>
+        <button type="submit">Request Execution Support</button>
       </form>
 
       <p style="margin-top:14px;">
-        Prefer email?
+        Contact us:
+        <a href="mailto:info@chinaexecution.com">info@chinaexecution.com</a> |
         <a href="mailto:bestoo@usabestoo.com">bestoo@usabestoo.com</a>
       </p>
     </section>
 
-    <!-- 页脚合规链接 -->
+    <!-- 公司主体说明（Ads 稳定性加分项） -->
+    <p style="margin-top:24px;font-size:13px;opacity:0.8;">
+      ChinaExecution is an independent execution support service operated by
+      Bestoo Service LLC, providing on-the-ground coordination and assistance in China.
+    </p>
+
+    <!-- 合规链接 -->
     <div class="footer-links">
       <a href="/">Back to website</a>
       <a href="/privacy.html" target="_blank">Privacy Policy</a>
