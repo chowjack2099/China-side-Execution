@@ -4,7 +4,27 @@
 
   "routes": [
     { "src": "/ads", "dest": "/ads.html" },
-    { "src": "/ads/", "dest": "/ads.html" }
+    { "src": "/ads/", "dest": "/ads.html" },
+
+    { "src": "/disclaimer", "dest": "/disclaimer.html" },
+    { "src": "/disclaimer/", "dest": "/disclaimer.html" },
+
+    { "src": "/privacy", "dest": "/privacy.html" },
+    { "src": "/privacy/", "dest": "/privacy.html" }
+  ],
+
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.chinaexecution.com"
+        }
+      ],
+      "destination": "https://chinaexecution.com/$1",
+      "permanent": true
+    }
   ],
 
   "headers": [
