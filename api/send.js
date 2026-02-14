@@ -3,12 +3,14 @@
 // Uses Resend HTTP API directly (no npm dependency)
 
 export default async function handler(req, res) {
-  // ---- CORS (可选) ----
+  // ---- Basic CORS (safe) ----
   res.setHeader("Access-Control-Allow-Origin", "https://chinaexecution.com");
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
 
-  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
 
   if (req.method !== "POST") {
     return res.status(405).send("Method not allowed");
@@ -23,7 +25,7 @@ export default async function handler(req, res) {
     const contentType = String(req.headers["content-type"] || "").toLowerCase();
     const data = await readBody(req, contentType);
 
-    // ---- Normalize fields (兼容 index / ads) ----
+    // ---- Normalize fields (compatible with your index/ads) ----
     const name = sanitize(data.name || data.fullname || "");
     const email = sanitize(data.email || data.from || "");
     const company = sanitize(data.company || "");
@@ -34,14 +36,15 @@ export default async function handler(req, res) {
     if (!email || !isEmail(email)) {
       return respond(req, res, 400, { success: false, error: "Invalid email" });
     }
+
     if (!details || details.length < 3) {
       return respond(req, res, 400, { success: false, error: "Missing details/message" });
     }
 
     // ---- Your identities ----
     const OWNER_TO = "info@chinaexecution.com";
-    const FROM = "ChinaExecution <info@chinaexecution.com>"; // 必须是 Resend 已验证域名下的发件人
-    const REPLY_TO_OWNER = email;
+    const FROM = "ChinaExecution <info@chinaexecution.com>"; // must be verified in Resend
+    const REPLY_TO_OWNER = email; // so you can reply directly to the lead
     const REPLY_TO_CUSTOMER = "info@chinaexecution.com";
 
     // ---- 1) Email to you (lead notification) ----
@@ -77,7 +80,7 @@ ${details}
 </div>
 `;
 
-    // ---- 2) Auto-reply to customer (把你“指定内容”替换这里即可) ----
+    // ---- 2) Auto-reply to customer (your copy) ----
     const customerSubject = "We received your request — ChinaExecution";
 
     const customerText =
@@ -85,13 +88,14 @@ ${details}
 
 Thanks for reaching out to ChinaExecution. We’ve received your request and will respond within 24 hours.
 
+For faster coordination, you can also contact us:
 WhatsApp Business: +1 919 213 1199
 Email: info@chinaexecution.com
 
-To move fast, please reply with:
+To help us move quickly, please reply with:
 1) City/Factory location (if known)
 2) Timeline / deadline
-3) Supplier links, files, or photos
+3) Any supplier links, files, or photos
 
 — ChinaExecution (Bestoo Service LLC)
 `;
@@ -114,7 +118,7 @@ To move fast, please reply with:
   <ol style="margin:6px 0 14px 18px">
     <li>City / Factory location (if known)</li>
     <li>Timeline / deadline</li>
-    <li>Supplier links, files, or photos</li>
+    <li>Any supplier links, files, or photos</li>
   </ol>
 
   <p style="margin-top:16px">— ChinaExecution (Bestoo Service LLC)</p>
@@ -122,6 +126,7 @@ To move fast, please reply with:
 `;
 
     // ---- Send via Resend API ----
+    // 1) to owner
     await resendSendEmail(RESEND_API_KEY, {
       from: FROM,
       to: OWNER_TO,
@@ -131,6 +136,7 @@ To move fast, please reply with:
       reply_to: REPLY_TO_OWNER,
     });
 
+    // 2) to customer (auto reply)
     await resendSendEmail(RESEND_API_KEY, {
       from: FROM,
       to: email,
@@ -140,11 +146,11 @@ To move fast, please reply with:
       reply_to: REPLY_TO_CUSTOMER,
     });
 
-    // ✅ 关键：返回 success:true（你的前端就是靠这个不弹错 + 跳转）
+    // ---- Return: HTML form => redirect, fetch => JSON ----
     return respond(req, res, 200, { success: true });
 
   } catch (err) {
-    console.error("SEND_ERROR:", err?.message || err);
+    console.error("SEND_ERROR:", err && err.stack ? err.stack : err);
     return respond(req, res, 500, { success: false, error: "Send failed" });
   }
 }
@@ -152,6 +158,7 @@ To move fast, please reply with:
 /* ---------------- Helpers ---------------- */
 
 async function readBody(req, contentType) {
+  // Vercel sometimes already parses req.body for JSON.
   if (req.body && typeof req.body === "object") return req.body;
 
   const raw = await readRaw(req);
@@ -165,7 +172,7 @@ async function readBody(req, contentType) {
     return Object.fromEntries(new URLSearchParams(raw));
   }
 
-  // fallback
+  // fallback: try urlencoded
   try {
     return Object.fromEntries(new URLSearchParams(raw));
   } catch {
@@ -203,10 +210,10 @@ async function resendSendEmail(apiKey, payload) {
 function respond(req, res, status, json) {
   const accept = String(req.headers["accept"] || "").toLowerCase();
 
-  // 普通 form 提交时，让浏览器跳 thank-you
+  // Normal browser form submit usually has text/html in Accept
   if (accept.includes("text/html")) {
     if (status >= 200 && status < 300) {
-      res.statusCode = 303;
+      res.statusCode = 303; // POST -> GET redirect
       res.setHeader("Location", "/thank-you.html");
       return res.end();
     }
@@ -229,11 +236,12 @@ function isEmail(v) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
+// IMPORTANT: no replaceAll (compatible with older Node runtimes)
 function escapeHtml(str) {
   return String(str || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
