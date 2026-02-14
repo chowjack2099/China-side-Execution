@@ -3,7 +3,7 @@
 // Uses Resend HTTP API directly (no npm dependency)
 
 export default async function handler(req, res) {
-  // ---- Basic CORS (safe) ----
+  // ---- Basic CORS (optional, safe) ----
   res.setHeader("Access-Control-Allow-Origin", "https://chinaexecution.com");
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
@@ -13,16 +13,17 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
+    // For direct browser visit: show Method not allowed (expected)
     return res.status(405).send("Method not allowed");
   }
 
   try {
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
     if (!RESEND_API_KEY) {
-      return respond(req, res, 500, { success: false, error: "Missing RESEND_API_KEY" });
+      return res.status(500).json({ ok: false, error: "Missing RESEND_API_KEY" });
     }
 
-    const contentType = String(req.headers["content-type"] || "").toLowerCase();
+    const contentType = (req.headers["content-type"] || "").toLowerCase();
     const data = await readBody(req, contentType);
 
     // ---- Normalize fields (compatible with your index/ads) ----
@@ -34,11 +35,17 @@ export default async function handler(req, res) {
     const source = sanitize(data.source || data.page || data.utm_source || "");
 
     if (!email || !isEmail(email)) {
-      return respond(req, res, 400, { success: false, error: "Invalid email" });
+      return respond(req, res, 400, {
+        ok: false,
+        error: "Invalid email",
+      });
     }
 
     if (!details || details.length < 3) {
-      return respond(req, res, 400, { success: false, error: "Missing details/message" });
+      return respond(req, res, 400, {
+        ok: false,
+        error: "Missing details/message",
+      });
     }
 
     // ---- Your identities ----
@@ -80,7 +87,7 @@ ${details}
 </div>
 `;
 
-    // ---- 2) Auto-reply to customer (your copy) ----
+    // ---- 2) Auto-reply to customer (PUT YOUR FINAL COPY HERE) ----
     const customerSubject = "We received your request — ChinaExecution";
 
     const customerText =
@@ -146,19 +153,21 @@ To help us move quickly, please reply with:
       reply_to: REPLY_TO_CUSTOMER,
     });
 
-    // ---- Return: HTML form => redirect, fetch => JSON ----
-    return respond(req, res, 200, { success: true });
+    // ---- Return: B mode (HTML form => redirect, fetch => JSON) ----
+    return respond(req, res, 200, { ok: true });
 
   } catch (err) {
-    console.error("SEND_ERROR:", err && err.stack ? err.stack : err);
-    return respond(req, res, 500, { success: false, error: "Send failed" });
+    // In case Resend returns error / parse error
+    console.error("SEND_ERROR:", err);
+    return respond(req, res, 500, { ok: false, error: "Send failed" });
   }
 }
 
 /* ---------------- Helpers ---------------- */
 
 async function readBody(req, contentType) {
-  // Vercel sometimes already parses req.body for JSON.
+  // Vercel sometimes already parses req.body for JSON,
+  // but to be safe we read raw stream if body is not available.
   if (req.body && typeof req.body === "object") return req.body;
 
   const raw = await readRaw(req);
@@ -208,24 +217,23 @@ async function resendSendEmail(apiKey, payload) {
 }
 
 function respond(req, res, status, json) {
-  const accept = String(req.headers["accept"] || "").toLowerCase();
+  const accept = (req.headers["accept"] || "").toLowerCase();
 
-  // Normal browser form submit usually has text/html in Accept
+  // If it's a normal browser form submit, Accept usually contains text/html
   if (accept.includes("text/html")) {
     if (status >= 200 && status < 300) {
       res.statusCode = 303; // POST -> GET redirect
       res.setHeader("Location", "/thank-you.html");
       return res.end();
     }
+    // failure: show a minimal message (no JSON popup)
     res.statusCode = 400;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     return res.end("Submission failed. Please try again or contact us directly.");
   }
 
   // fetch/ajax
-  res.statusCode = status;
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  return res.end(JSON.stringify(json));
+  return res.status(status).json(json);
 }
 
 function sanitize(v) {
@@ -236,12 +244,11 @@ function isEmail(v) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
-// IMPORTANT: no replaceAll (compatible with older Node runtimes)
 function escapeHtml(str) {
   return String(str || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
