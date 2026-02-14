@@ -58,4 +58,17 @@
 
         alert(msg);
       } catch (err) {
-       
+        alert("Network error. Please try again or contact us directly.");
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = oldText;
+        }
+      }
+    });
+  }
+
+  // Unified form submit -> redirect to thank-you
+  bindAjaxForm("leadForm");
+  bindAjaxForm("adsForm");
+})();
