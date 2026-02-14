@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     const source = sanitize(data.source || data.page || data.utm_source || "");
 
     if (!email || !isEmail(email)) {
-      return respond(req, res, 400, { ok: false,success: false, error: "Invalid email" });
+      return respond(req, res, 400, { ok: false, success: false, error: "Invalid email" });
     }
 
     if (!details || details.length < 3) {
