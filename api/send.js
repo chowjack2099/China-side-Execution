@@ -84,7 +84,7 @@ info@chinaexecution.com
       return res.status(500).json({ ok: false, error: "Auto-reply failed", detail: t });
     }
 
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ success: true });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ ok: false, error: err?.message || "Internal error" });
