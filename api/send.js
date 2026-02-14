@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   try {
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
     if (!RESEND_API_KEY) {
-      return res.status(500).json({ ok: false, error: "Missing RESEND_API_KEY" });
+      return res.status(500).json({ ok: false, success: false, error: "Missing RESEND_API_KEY" });
     }
 
     const contentType = (req.headers["content-type"] || "").toLowerCase();
@@ -35,11 +35,19 @@ export default async function handler(req, res) {
     const source = sanitize(data.source || data.page || data.utm_source || "");
 
     if (!email || !isEmail(email)) {
-      return respond(req, res, 400, { ok: false, success: false, error: "Invalid email" });
+      return respond(req, res, 400, {
+        ok: false,
+        success: false,
+        error: "Invalid email",
+      });
     }
 
     if (!details || details.length < 3) {
-      return respond(req, res, 400, { ok: false, success: false, error: "Missing details/message" });
+      return respond(req, res, 400, {
+        ok: false,
+        success: false,
+        error: "Missing details/message",
+      });
     }
 
     // ---- Your identities ----
@@ -81,9 +89,7 @@ ${details}
 </div>
 `;
 
-    // ---- 2) Auto-reply to customer (PUT YOUR FINAL COPY HERE) ----
-    // 你之前“指定内容”就替换下面这段 customerText / customerHtml
-    // 保持结构不变即可
+    // ---- 2) Auto-reply to customer ----
     const customerSubject = "We received your request — ChinaExecution";
 
     const customerText =
@@ -129,7 +135,6 @@ To help us move quickly, please reply with:
 `;
 
     // ---- Send via Resend API ----
-    // 1) to owner
     await resendSendEmail(RESEND_API_KEY, {
       from: FROM,
       to: OWNER_TO,
@@ -139,7 +144,6 @@ To help us move quickly, please reply with:
       reply_to: REPLY_TO_OWNER,
     });
 
-    // 2) to customer (auto reply)
     await resendSendEmail(RESEND_API_KEY, {
       from: FROM,
       to: email,
@@ -153,7 +157,6 @@ To help us move quickly, please reply with:
     return respond(req, res, 200, { ok: true, success: true });
 
   } catch (err) {
-    // In case Resend returns error / parse error
     console.error("SEND_ERROR:", err);
     return respond(req, res, 500, { ok: false, success: false, error: "Send failed" });
   }
@@ -162,8 +165,6 @@ To help us move quickly, please reply with:
 /* ---------------- Helpers ---------------- */
 
 async function readBody(req, contentType) {
-  // Vercel sometimes already parses req.body for JSON,
-  // but to be safe we read raw stream if body is not available.
   if (req.body && typeof req.body === "object") return req.body;
 
   const raw = await readRaw(req);
@@ -177,7 +178,6 @@ async function readBody(req, contentType) {
     return Object.fromEntries(new URLSearchParams(raw));
   }
 
-  // fallback: try urlencoded
   try {
     return Object.fromEntries(new URLSearchParams(raw));
   } catch {
@@ -215,20 +215,17 @@ async function resendSendEmail(apiKey, payload) {
 function respond(req, res, status, json) {
   const accept = (req.headers["accept"] || "").toLowerCase();
 
-  // If it's a normal browser form submit, Accept usually contains text/html
   if (accept.includes("text/html")) {
     if (status >= 200 && status < 300) {
-      res.statusCode = 303; // POST -> GET redirect
+      res.statusCode = 303;
       res.setHeader("Location", "/thank-you.html");
       return res.end();
     }
-    // failure: show a minimal message (no JSON popup)
     res.statusCode = 400;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     return res.end("Submission failed. Please try again or contact us directly.");
   }
 
-  // fetch/ajax
   return res.status(status).json(json);
 }
 
