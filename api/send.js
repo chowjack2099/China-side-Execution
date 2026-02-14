@@ -1,133 +1,206 @@
 // /api/send.js
-export default async function handler(req, res) {
-  // ---- CORS (可保留，防止跨域问题) ----
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+// Vercel Serverless Function (Node.js)
+// Uses Resend HTTP API directly (no npm dependency)
 
-  if (req.method === "OPTIONS") return res.status(204).end();
+export default async function handler(req, res) {
+  // ---- Basic CORS (optional, safe) ----
+  res.setHeader("Access-Control-Allow-Origin", "https://chinaexecution.com");
+  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
   if (req.method !== "POST") {
-    return res.status(200).json({ ok: false, error: "Method not allowed" }); // 返回200，避免前端误判弹错
+    // For direct browser visit: show Method not allowed (expected)
+    return res.status(405).send("Method not allowed");
   }
 
   try {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      return res.status(200).json({ ok: false, error: "Missing RESEND_API_KEY" });
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    if (!RESEND_API_KEY) {
+      return res.status(500).json({ ok: false, error: "Missing RESEND_API_KEY" });
     }
 
-    // 你想用自己的域名发件人（推荐）
-    // 如果 Resend 那边还没完全放行/验证，你也可以临时改成 onboarding@resend.dev 排障
-    const FROM = process.env.RESEND_FROM || "ChinaExecution <info@chinaexecution.com>";
-    const ADMIN_TO = process.env.LEAD_TO || "info@chinaexecution.com";
+    const contentType = (req.headers["content-type"] || "").toLowerCase();
+    const data = await readBody(req, contentType);
 
-    // ---- 兼容 body 可能是 string / object ----
-    let data = req.body;
-    if (typeof data === "string") {
-      try { data = JSON.parse(data); } catch { data = {}; }
-    }
-    data = data || {};
+    // ---- Normalize fields (compatible with your index/ads) ----
+    const name = sanitize(data.name || data.fullname || "");
+    const email = sanitize(data.email || data.from || "");
+    const company = sanitize(data.company || "");
+    const timeline = sanitize(data.timeline || "");
+    const details = sanitize(data.details || data.message || data.notes || "");
+    const source = sanitize(data.source || data.page || data.utm_source || "");
 
-    // ---- 兼容 ads/index 两种字段命名 ----
-    const name = data.name || "";
-    const email = data.email || "";
-    const company = data.company || "";
-    const timeline = data.timeline || "";
-    const source = data.source || data.page || "";
-    const leadText = (data.details || data.message || "").trim();
-
-    if (!email || !leadText) {
-      return res.status(200).json({
+    if (!email || !isEmail(email)) {
+      return respond(req, res, 400, {
         ok: false,
-        error: "Missing required fields: email + details/message",
+        error: "Invalid email",
       });
     }
 
-    // ============ 1) 管理员通知（必须成功） ============
-    const adminSubject = `New Lead — ChinaExecution (${source || "website"})`;
-    const adminHtml = `
-      <h2>New Lead</h2>
-      <p><b>Name:</b> ${esc(name)}</p>
-      <p><b>Email:</b> ${esc(email)}</p>
-      <p><b>Company:</b> ${esc(company)}</p>
-      <p><b>Timeline:</b> ${esc(timeline)}</p>
-      <p><b>Source:</b> ${esc(source)}</p>
-      <hr />
-      <pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;">${esc(leadText)}</pre>
-    `;
-
-    const adminResult = await resendSend(apiKey, {
-      from: FROM,
-      to: [ADMIN_TO],
-      subject: adminSubject,
-      html: adminHtml,
-      reply_to: email, // 你直接回复这封通知邮件就等于回客户
-    });
-
-    if (!adminResult.ok) {
-      // 管理员都发不出去 → 这才算真正失败
-      return res.status(200).json({
+    if (!details || details.length < 3) {
+      return respond(req, res, 400, {
         ok: false,
-        error: "Admin notify failed",
-        detail: adminResult.detail,
+        error: "Missing details/message",
       });
     }
 
-    // ============ 2) 自动回复客户（失败也不影响 ok=true） ============
-    // 这里是“高客单价定位”版本，你要改成你指定内容，就改 autoHtml 这段即可
-    const autoSubject = "We received your request — ChinaExecution";
-    const autoHtml = `
-      <p>Hi${name ? " " + esc(name) : ""},</p>
+    // ---- Your identities ----
+    const OWNER_TO = "info@chinaexecution.com";
+    const FROM = "ChinaExecution <info@chinaexecution.com>"; // must be verified in Resend
+    const REPLY_TO_OWNER = email; // so you can reply directly to the lead
+    const REPLY_TO_CUSTOMER = "info@chinaexecution.com";
 
-      <p>Thanks for reaching out. We’ve received your request and will respond within <b>24 hours</b>.</p>
+    // ---- 1) Email to you (lead notification) ----
+    const leadSubject = `New Lead — ChinaExecution (${source || "website"})`;
 
-      <p><b>High-touch execution support (China-side)</b><br/>
-      We focus on outcomes: supplier coordination, production follow-up, QC/inspection coordination, and logistics follow-up —
-      with clear evidence and structured reporting.</p>
+    const leadText =
+`New lead received
 
-      <p><b>Fastest channel:</b> WhatsApp Business
-      <a href="https://wa.me/19192131199">+1 919 213 1199</a></p>
+Name: ${name || "-"}
+Email: ${email}
+Company: ${company || "-"}
+Timeline: ${timeline || "-"}
+Source: ${source || "-"}
 
-      <p><b>To speed up quoting</b>, please reply with:
-      <ul>
-        <li>City / factory location (if known)</li>
-        <li>Deadline / urgency</li>
-        <li>Any links/files (product spec, supplier info)</li>
-      </ul>
-      </p>
+Details:
+${details}
+`;
 
-      <p>If this is urgent, reply with <b>URGENT</b> + your deadline.</p>
+    const leadHtml = `
+<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
+  <h2 style="margin:0 0 12px">New lead received</h2>
+  <table style="border-collapse:collapse">
+    <tr><td style="padding:4px 10px 4px 0"><b>Name</b></td><td>${escapeHtml(name || "-")}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0"><b>Email</b></td><td>${escapeHtml(email)}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0"><b>Company</b></td><td>${escapeHtml(company || "-")}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0"><b>Timeline</b></td><td>${escapeHtml(timeline || "-")}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0"><b>Source</b></td><td>${escapeHtml(source || "-")}</td></tr>
+  </table>
+  <h3 style="margin:16px 0 8px">Details</h3>
+  <div style="white-space:pre-wrap;border:1px solid #eee;border-radius:10px;padding:12px;background:#fafafa">
+    ${escapeHtml(details)}
+  </div>
+</div>
+`;
 
-      <hr/>
-      <p><b>Your submission:</b></p>
-      <pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;">${esc(leadText)}</pre>
+    // ---- 2) Auto-reply to customer (PUT YOUR FINAL COPY HERE) ----
+    // 你之前“指定内容”就替换下面这段 customerText / customerHtml
+    // 保持结构不变即可
+    const customerSubject = "We received your request — ChinaExecution";
 
-      <p style="opacity:.7;font-size:12px;">
-        Bestoo Service LLC / ChinaExecution<br/>
-        Email: info@chinaexecution.com | WhatsApp: +1 919 213 1199
-      </p>
-    `;
+    const customerText =
+`Hi${name ? " " + name : ""},
 
-    const autoResult = await resendSend(apiKey, {
+Thanks for reaching out to ChinaExecution. We’ve received your request and will respond within 24 hours.
+
+For faster coordination, you can also contact us:
+WhatsApp Business: +1 919 213 1199
+Email: info@chinaexecution.com
+
+To help us move quickly, please reply with:
+1) City/Factory location (if known)
+2) Timeline / deadline
+3) Any supplier links, files, or photos
+
+— ChinaExecution (Bestoo Service LLC)
+`;
+
+    const customerHtml = `
+<div style="font-family:Arial,sans-serif;line-height:1.7;color:#111">
+  <p>Hi${name ? " " + escapeHtml(name) : ""},</p>
+
+  <p>
+    Thanks for reaching out to <b>ChinaExecution</b>. We’ve received your request and will respond within <b>24 hours</b>.
+  </p>
+
+  <p style="margin:14px 0 6px"><b>For faster coordination:</b></p>
+  <ul style="margin:6px 0 14px 18px">
+    <li>WhatsApp Business: <a href="https://wa.me/19192131199" target="_blank" rel="noopener">+1 919 213 1199</a></li>
+    <li>Email: <a href="mailto:info@chinaexecution.com">info@chinaexecution.com</a></li>
+  </ul>
+
+  <p style="margin:14px 0 6px"><b>To help us move quickly, please reply with:</b></p>
+  <ol style="margin:6px 0 14px 18px">
+    <li>City / Factory location (if known)</li>
+    <li>Timeline / deadline</li>
+    <li>Any supplier links, files, or photos</li>
+  </ol>
+
+  <p style="margin-top:16px">— ChinaExecution (Bestoo Service LLC)</p>
+</div>
+`;
+
+    // ---- Send via Resend API ----
+    // 1) to owner
+    await resendSendEmail(RESEND_API_KEY, {
       from: FROM,
-      to: [email],
-      subject: autoSubject,
-      html: autoHtml,
+      to: OWNER_TO,
+      subject: leadSubject,
+      text: leadText,
+      html: leadHtml,
+      reply_to: REPLY_TO_OWNER,
     });
 
-    // 返回 200 + ok=true：只要管理员收到了，就不让前端弹错
-    return res.status(200).json({
-      ok: true,
-      admin: adminResult.detail,
-      auto_ok: autoResult.ok,
-      auto_detail: autoResult.ok ? autoResult.detail : autoResult.detail, // 方便你在日志看原因
+    // 2) to customer (auto reply)
+    await resendSendEmail(RESEND_API_KEY, {
+      from: FROM,
+      to: email,
+      subject: customerSubject,
+      text: customerText,
+      html: customerHtml,
+      reply_to: REPLY_TO_CUSTOMER,
     });
+
+    // ---- Return: B mode (HTML form => redirect, fetch => JSON) ----
+    return respond(req, res, 200, { ok: true });
+
   } catch (err) {
-    return res.status(200).json({ ok: false, error: String(err?.message || err) });
+    // In case Resend returns error / parse error
+    console.error("SEND_ERROR:", err);
+    return respond(req, res, 500, { ok: false, error: "Send failed" });
   }
 }
 
-async function resendSend(apiKey, payload) {
+/* ---------------- Helpers ---------------- */
+
+async function readBody(req, contentType) {
+  // Vercel sometimes already parses req.body for JSON,
+  // but to be safe we read raw stream if body is not available.
+  if (req.body && typeof req.body === "object") return req.body;
+
+  const raw = await readRaw(req);
+  if (!raw) return {};
+
+  if (contentType.includes("application/json")) {
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
+
+  if (contentType.includes("application/x-www-form-urlencoded")) {
+    return Object.fromEntries(new URLSearchParams(raw));
+  }
+
+  // fallback: try urlencoded
+  try {
+    return Object.fromEntries(new URLSearchParams(raw));
+  } catch {
+    return {};
+  }
+}
+
+function readRaw(req) {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", (chunk) => (data += chunk));
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  });
+}
+
+async function resendSendEmail(apiKey, payload) {
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -137,13 +210,44 @@ async function resendSend(apiKey, payload) {
     body: JSON.stringify(payload),
   });
 
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) return { ok: false, detail: j };
-  return { ok: true, detail: j };
+  if (!r.ok) {
+    const txt = await r.text().catch(() => "");
+    throw new Error(`Resend API error: ${r.status} ${txt}`);
+  }
+
+  return r.json().catch(() => ({}));
 }
 
-function esc(s) {
-  return String(s || "")
+function respond(req, res, status, json) {
+  const accept = (req.headers["accept"] || "").toLowerCase();
+
+  // If it's a normal browser form submit, Accept usually contains text/html
+  if (accept.includes("text/html")) {
+    if (status >= 200 && status < 300) {
+      res.statusCode = 303; // POST -> GET redirect
+      res.setHeader("Location", "/thank-you.html");
+      return res.end();
+    }
+    // failure: show a minimal message (no JSON popup)
+    res.statusCode = 400;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    return res.end("Submission failed. Please try again or contact us directly.");
+  }
+
+  // fetch/ajax
+  return res.status(status).json(json);
+}
+
+function sanitize(v) {
+  return String(v || "").trim();
+}
+
+function isEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
+function escapeHtml(str) {
+  return String(str || "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
