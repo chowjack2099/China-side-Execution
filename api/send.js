@@ -204,6 +204,10 @@ function parseRawBody(raw, contentType) {
     return Object.fromEntries(new URLSearchParams(raw));
   }
 
+  if (contentType.includes("multipart/form-data")) {
+    return parseMultipartFormData(raw, contentType);
+  }
+
   // fallback: try JSON first, then urlencoded
   try {
     return JSON.parse(raw);
@@ -214,6 +218,32 @@ function parseRawBody(raw, contentType) {
       return {};
     }
   }
+}
+
+function parseMultipartFormData(raw, contentType) {
+  const boundaryMatch = contentType.match(/boundary=([^\s;]+)/i);
+  if (!boundaryMatch) return {};
+
+  const boundary = boundaryMatch[1].replace(/^"|"$/g, "");
+  const marker = `--${boundary}`;
+  const out = {};
+
+  for (const part of String(raw).split(marker)) {
+    if (!part || part === "--" || part === "--\r\n") continue;
+
+    const cleaned = part.replace(/^\r\n/, "").replace(/\r\n--$/, "");
+    const sepIdx = cleaned.indexOf("\r\n\r\n");
+    if (sepIdx < 0) continue;
+
+    const header = cleaned.slice(0, sepIdx);
+    const value = cleaned.slice(sepIdx + 4).replace(/\r\n$/, "");
+    const nameMatch = header.match(/name="([^"]+)"/i);
+    if (!nameMatch) continue;
+
+    out[nameMatch[1]] = value;
+  }
+
+  return out;
 }
 
 function readRaw(req) {
@@ -273,9 +303,9 @@ function isEmail(v) {
 
 function escapeHtml(str) {
   return String(str || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
