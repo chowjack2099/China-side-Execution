@@ -35,17 +35,11 @@ export default async function handler(req, res) {
     const source = sanitize(data.source || data.page || data.utm_source || "");
 
     if (!email || !isEmail(email)) {
-      return respond(req, res, 400, {
-        ok: false,
-        error: "Invalid email",
-      });
+      return respond(req, res, 400, { ok: false,success: false, error: "Invalid email" });
     }
 
     if (!details || details.length < 3) {
-      return respond(req, res, 400, {
-        ok: false,
-        error: "Missing details/message",
-      });
+      return respond(req, res, 400, { ok: false, success: false, error: "Missing details/message" });
     }
 
     // ---- Your identities ----
@@ -156,12 +150,12 @@ To help us move quickly, please reply with:
     });
 
     // ---- Return: B mode (HTML form => redirect, fetch => JSON) ----
-    return respond(req, res, 200, { ok: true });
+    return respond(req, res, 200, { ok: true, success: true });
 
   } catch (err) {
     // In case Resend returns error / parse error
     console.error("SEND_ERROR:", err);
-    return respond(req, res, 500, { ok: false, error: "Send failed" });
+    return respond(req, res, 500, { ok: false, success: false, error: "Send failed" });
   }
 }
 
