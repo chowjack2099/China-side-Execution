@@ -120,5 +120,26 @@
 
   </main>
 
+  <script>
+    // Add the fetch API functionality to handle form submission
+    document.getElementById("adsForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+
+      const response = await fetch("/api/send", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        // Redirect to the thank you page
+        window.location.href = "/thank-you.html";
+      } else {
+        alert("There was an error submitting the form.");
+      }
+    });
+  </script>
+
 </body>
 </html>
