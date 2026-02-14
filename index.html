@@ -362,48 +362,6 @@
   <script src="/main.js"></script>
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
 
-  <!-- ✅ 新增：仅用于替代 Formspree 提交 -->
-  <script>
-    (function () {
-      const form = document.getElementById('leadForm');
-      if (!form) return;
-
-      form.addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const payload = {
-          name: form.querySelector('[name="name"]').value.trim(),
-          email: form.querySelector('[name="email"]').value.trim(),
-          // 把原表单字段拼成一段 message，后端保持 {name,email,message} 结构不变
-          message:
-`Company: ${(form.querySelector('[name="company"]').value || '-').trim()}
-Timeline: ${(form.querySelector('[name="timeline"]').value || '-').trim()}
-Details:
-${(form.querySelector('[name="details"]').value || '').trim()}`
-        };
-
-        try {
-          const res = await fetch('/api/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-
-          const data = await res.json().catch(() => ({}));
-
-          if (res.ok && data.success) {
-            window.location.href = '/thank-you.html';
-            return;
-          }
-
-          alert('Submission failed. Please try again.');
-        } catch (err) {
-          alert('Network error. Please try again.');
-        }
-      });
-    })();
-  </script>
 </body>
 </html>
