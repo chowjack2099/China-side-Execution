@@ -5,41 +5,89 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>China Execution Services for US Businesses</title>
 
-  <meta name="description"
-        content="On-the-ground execution support in China for US businesses. Supplier follow-up, factory coordination, inspections, production tracking, and local execution." />
+  <meta
+    name="description"
+    content="On-the-ground execution support in China for US businesses. Supplier follow-up, factory coordination, inspections, production tracking, and local execution."
+  />
 
   <link rel="canonical" href="https://chinaexecution.com/ads" />
   <link rel="stylesheet" href="/styles.css" />
+
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:#111;background:#fff;}
+    .lp { max-width: 920px; margin: 0 auto; padding: 40px 20px; line-height: 1.65; }
+    h1, h2 { margin-top: 0; }
+    p { margin: 10px 0; }
+    ul, ol { margin: 10px 0 20px 20px; }
+    .box { border: 1px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 18px; margin: 20px 0; }
+    .grid { display: grid; gap: 16px; }
+    @media (min-width: 860px) { .grid { grid-template-columns: 1fr 1fr; } }
+    label { display:block;margin-top:12px;font-weight:500;}
+    input, textarea { width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid rgba(0,0,0,0.25);font-size:14px;}
+    button { margin-top:16px;padding:12px 18px;border-radius:10px;border:1px solid rgba(0,0,0,0.25);background:#fff;cursor:pointer;font-size:15px;}
+    button:hover { background:#f5f5f5;}
+    .footer-links { margin-top:26px;font-size:13px;opacity:0.85;}
+    .footer-links a { margin-right:14px;color:#111;text-decoration:none;}
+    .footer-links a:hover { text-decoration:underline;}
+    small { opacity:0.8;}
+  </style>
 </head>
 
 <body>
-  <main class="lp" style="max-width:920px;margin:0 auto;padding:40px 20px;">
+  <main class="lp">
 
     <h1>China Execution Services for US Businesses</h1>
 
     <p>
-      We provide <strong>on-the-ground execution support in China</strong>
-      for US-based companies. You assign the task, we execute locally,
-      and report back clearly in English.
+      We provide <strong>on-the-ground execution support in China</strong> for
+      US-based companies. You assign the task, we execute locally in China, and
+      report back clearly in English.
     </p>
 
-    <section>
-      <h2>What We Do</h2>
-      <ul>
-        <li>Supplier follow-up & factory coordination</li>
-        <li>On-site assistance & inspections</li>
-        <li>Production tracking & issue resolution</li>
-        <li>Document handling & logistics coordination</li>
-      </ul>
+    <div class="grid">
+      <section class="box">
+        <h2>What We Do</h2>
+        <ul>
+          <li>Supplier follow-up & factory coordination</li>
+          <li>On-site assistance & inspections</li>
+          <li>Production tracking & issue resolution</li>
+          <li>Document handling & local coordination</li>
+          <li>Logistics coordination & follow-up</li>
+        </ul>
+        <p><small>No middlemen. Pure execution support.</small></p>
+      </section>
+
+      <section class="box">
+        <h2>Who This Is For</h2>
+        <ul>
+          <li>US founders and operators working with China</li>
+          <li>Sourcing teams needing reliable China-side action</li>
+          <li>Businesses that cannot travel but need local execution</li>
+        </ul>
+        <p><small>Fast response, transparent updates.</small></p>
+      </section>
+    </div>
+
+    <section class="box">
+      <h2>How It Works</h2>
+      <ol>
+        <li>You send task details (what, where, deadline).</li>
+        <li>We confirm scope and execute locally in China.</li>
+        <li>You receive progress updates and final results in English.</li>
+      </ol>
     </section>
 
-    <section>
+    <section class="box" id="contact">
       <h2>Request Execution Support</h2>
+      <p>
+        Describe what you need done in China. We will reply with scope and next steps.
+      </p>
 
+      <!-- 这里只改了表单提交方式 -->
       <form id="adsForm">
 
         <label>
-          Your Email
+          Your email
           <input type="email" name="email" required />
         </label>
 
@@ -48,31 +96,27 @@
           <textarea name="message" rows="5" required></textarea>
         </label>
 
-        <button type="submit">
-          Request Execution Support
-        </button>
+        <button type="submit">Request Execution Support</button>
 
       </form>
 
       <p style="margin-top:14px;">
-        Contact:
-        <a href="mailto:info@chinaexecution.com">info@chinaexecution.com</a>
+        Contact us:
+        <a href="mailto:info@chinaexecution.com">info@chinaexecution.com</a> |
+        <a href="mailto:bestoo@usabestoo.com">bestoo@usabestoo.com</a>
       </p>
-
     </section>
 
-    <hr style="margin:30px 0;opacity:0.3;">
-
-    <p style="font-size:13px;opacity:0.7;">
-      ChinaExecution is operated by Bestoo Service LLC,
-      providing on-the-ground coordination and assistance in China.
+    <p style="margin-top:24px;font-size:13px;opacity:0.8;">
+      ChinaExecution is an independent execution support service operated by
+      Bestoo Service LLC, providing on-the-ground coordination and assistance in China.
     </p>
 
-    <p style="font-size:13px;">
-      <a href="/">Back to website</a> |
-      <a href="/privacy.html" target="_blank">Privacy</a> |
+    <div class="footer-links">
+      <a href="/">Back to website</a>
+      <a href="/privacy.html" target="_blank">Privacy Policy</a>
       <a href="/disclaimer.html" target="_blank">Disclaimer</a>
-    </p>
+    </div>
 
   </main>
 
@@ -81,7 +125,7 @@ document.getElementById('adsForm').addEventListener('submit', async function(e) 
   e.preventDefault();
 
   const formData = {
-    name: "Ads Landing Page",
+    name: "Google Ads Landing Page",
     email: this.email.value,
     message: this.message.value
   };
@@ -95,8 +139,7 @@ document.getElementById('adsForm').addEventListener('submit', async function(e) 
   const result = await response.json();
 
   if (result.success) {
-    alert("Request submitted. We will respond within 24 hours.");
-    this.reset();
+    window.location.href = "/thank-you.html";
   } else {
     alert("Submission failed. Please try again.");
   }
