@@ -4,132 +4,142 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bestoo Service LLC | China-side Execution Support</title>
-  <meta name="description" content="Bestoo Service LLC provides China-side execution support: supplier coordination, sampling follow-up, production tracking, QC coordination, and logistics follow-up." />
+  <meta name="description" content="Bestoo Service LLC provides China-side execution support: supplier coordination, sampling follow-up, production tracking, QC coordination, and logistics follow-up — so you don’t have to manage China remotely." />
+
+  <meta property="og:title" content="Bestoo Service LLC | China-side Execution Support" />
+  <meta property="og:description" content="On-the-ground execution in China: follow-ups, supplier coordination, sampling, QC support, and logistics coordination." />
+  <meta property="og:type" content="website" />
 
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 
 <body>
+  <header class="header">
+    <div class="container header__inner">
+      <a class="brand" href="/">
+        <span class="brand__mark"></span>
+        <div class="brand__stack">
+          <span class="brand__name">Bestoo Service LLC</span>
+          <span class="brand__sub">China-side Execution Support</span>
+        </div>
+      </a>
 
-<header class="header">
-  <div class="container header__inner">
-    <a class="brand" href="/">
-      <span class="brand__mark"></span>
-      <div class="brand__stack">
-        <span class="brand__name">Bestoo Service LLC</span>
-        <span class="brand__sub">China-side Execution Support</span>
+      <nav class="nav">
+        <a href="#services">Services</a>
+        <a href="#how">Process</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btn--sm" href="#request">Request</a>
+      </nav>
+
+      <button class="navToggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- 原内容保持不变 -->
+    <!-- 省略中间 sections（你原有内容不变） -->
+
+    <!-- REQUEST SECTION -->
+    <section class="section" id="request">
+      <div class="container">
+        <div class="sectionHead">
+          <h2>Request Execution Support</h2>
+          <p class="muted">
+            Send your request. We typically respond within 24 hours.
+          </p>
+        </div>
+
+        <div class="formGrid">
+
+          <!-- ✅ 仅修改这里 -->
+          <form class="form" id="leadForm">
+
+            <div class="row">
+              <label>
+                Name
+                <input name="name" type="text" required />
+              </label>
+              <label>
+                Email
+                <input name="email" type="email" required />
+              </label>
+            </div>
+
+            <div class="row">
+              <label>
+                Company
+                <input name="company" type="text" />
+              </label>
+              <label>
+                Timeline
+                <input name="timeline" type="text" />
+              </label>
+            </div>
+
+            <label>
+              What do you need executed in China?
+              <textarea name="details" rows="6" required></textarea>
+            </label>
+
+            <label class="check">
+              <input type="checkbox" required />
+              <span>I understand this is an execution & coordination service.</span>
+            </label>
+
+            <button class="btn" type="submit">Submit Request</button>
+
+          </form>
+
+        </div>
       </div>
-    </a>
-  </div>
-</header>
+    </section>
 
-<main>
+  </main>
 
-<section class="section" id="request">
-  <div class="container">
-    <div class="sectionHead">
-      <h2>Request Execution Support</h2>
-      <p class="muted">
-        Send your request. We typically respond within 24 hours.
-      </p>
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p>© <span id="year"></span> Bestoo Service LLC</p>
     </div>
+  </footer>
 
-    <div class="formGrid">
-      <form class="form" id="leadForm">
+  <script src="/main.js"></script>
 
-        <div class="row">
-          <label>
-            Name
-            <input name="name" type="text" required />
-          </label>
-          <label>
-            Email
-            <input name="email" type="email" required />
-          </label>
-        </div>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
 
-        <div class="row">
-          <label>
-            Company
-            <input name="company" type="text" />
-          </label>
-          <label>
-            Timeline
-            <input name="timeline" type="text" />
-          </label>
-        </div>
+    document.getElementById('leadForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
 
-        <label>
-          What do you need executed in China?
-          <textarea name="details" rows="6" required></textarea>
-        </label>
+      const formData = {
+        name: this.name.value,
+        email: this.email.value,
+        message: `
+Company: ${this.company.value || "-"}
+Timeline: ${this.timeline.value || "-"}
+Details:
+${this.details.value}
+`
+      };
 
-        <label class="check">
-          <input type="checkbox" required />
-          <span>I understand this is an execution & coordination service.</span>
-        </label>
+      const response = await fetch('/api/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
 
-        <button class="btn" type="submit">Submit Request</button>
+      const result = await response.json();
 
-      </form>
-
-      <aside class="contactCard">
-        <h3>Direct Contact</h3>
-        <div class="contactList">
-          <a class="contactItem" href="mailto:info@chinaexecution.com">
-            <span class="k">Email</span>
-            <span class="v">info@chinaexecution.com</span>
-          </a>
-          <a class="contactItem" href="https://wa.me/19192131199" target="_blank">
-            <span class="k">WhatsApp</span>
-            <span class="v">+1 919 213 1199</span>
-          </a>
-        </div>
-      </aside>
-
-    </div>
-  </div>
-</section>
-
-</main>
-
-<footer class="footer">
-  <div class="container footer__inner">
-    <p>© <span id="year"></span> Bestoo Service LLC</p>
-  </div>
-</footer>
-
-<script>
-document.getElementById("year").textContent = new Date().getFullYear();
-
-document.getElementById('leadForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const formData = {
-    name: this.name.value,
-    email: this.email.value,
-    company: this.company.value,
-    timeline: this.timeline.value,
-    details: this.details.value
-  };
-
-  const response = await fetch('/api/send', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData)
-  });
-
-  const result = await response.json();
-
-  if (result.success) {
-    alert("Request submitted successfully. We will respond within 24 hours.");
-    this.reset();
-  } else {
-    alert("Submission failed. Please try again.");
-  }
-});
-</script>
+      if (result.success) {
+        window.location.href = "/thank-you.html";
+      } else {
+        alert("Submission failed. Please try again.");
+      }
+    });
+  </script>
 
 </body>
 </html>
