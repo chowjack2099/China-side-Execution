@@ -4,7 +4,16 @@
 
 export default async function handler(req, res) {
   // ---- Basic CORS (optional, safe) ----
-  res.setHeader("Access-Control-Allow-Origin", "https://chinaexecution.com");
+  const origin = req.headers.origin || "";
+  const allowedOrigins = new Set([
+    "https://chinaexecution.com",
+    "https://www.chinaexecution.com",
+  ]);
+  if (allowedOrigins.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "https://chinaexecution.com");
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
 
@@ -49,10 +58,10 @@ export default async function handler(req, res) {
     }
 
     // ---- Your identities ----
-    const OWNER_TO = "info@chinaexecution.com";
-    const FROM = "ChinaExecution <info@chinaexecution.com>"; // must be verified in Resend
+    const OWNER_TO = process.env.LEAD_TO_EMAIL || "info@chinaexecution.com";
+    const FROM = process.env.RESEND_FROM || "ChinaExecution <info@chinaexecution.com>"; // must be verified in Resend
     const REPLY_TO_OWNER = email; // so you can reply directly to the lead
-    const REPLY_TO_CUSTOMER = "info@chinaexecution.com";
+    const REPLY_TO_CUSTOMER = OWNER_TO;
 
     // ---- 1) Email to you (lead notification) ----
     const leadSubject = `New Lead - ChinaExecution (${source || "website"})`;
@@ -143,22 +152,26 @@ To help us move quickly, please reply with:
       reply_to: REPLY_TO_OWNER,
     });
 
-    // 2) to customer (auto reply)
-    await resendSendEmail(RESEND_API_KEY, {
-      from: FROM,
-      to: email,
-      subject: customerSubject,
-      text: customerText,
-      html: customerHtml,
-      reply_to: REPLY_TO_CUSTOMER,
-    });
+    // 2) to customer (auto reply) - best effort, should not block form success.
+    try {
+      await resendSendEmail(RESEND_API_KEY, {
+        from: FROM,
+        to: email,
+        subject: customerSubject,
+        text: customerText,
+        html: customerHtml,
+        reply_to: REPLY_TO_CUSTOMER,
+      });
+    } catch (autoReplyErr) {
+      console.error("AUTO_REPLY_ERROR:", autoReplyErr);
+    }
 
     // ---- Return: B mode (HTML form => redirect, fetch => JSON) ----
     return respond(req, res, 200, { ok: true });
   } catch (err) {
     // In case Resend returns error / parse error
     console.error("SEND_ERROR:", err);
-    return respond(req, res, 500, { ok: false, error: "Send failed" });
+    return respond(req, res, 500, { ok: false, error: err.message || "Send failed" });
   }
 }
 
