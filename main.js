@@ -49,6 +49,7 @@
         let msg = "Submission failed. Please try again or contact us directly.";
         try {
           const data = await res.json();
+          if (data && data.error) msg = data.error;
           if (data && data.errors && data.errors.length) {
             msg = data.errors.map((x) => x.message).join(" ");
           }
