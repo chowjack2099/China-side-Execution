@@ -83,9 +83,7 @@
         Describe what you need done in China. We will reply with scope and next steps.
       </p>
 
-      <!-- 这里只改了表单提交方式 -->
       <form id="adsForm">
-
         <label>
           Your email
           <input type="email" name="email" required />
@@ -97,7 +95,6 @@
         </label>
 
         <button type="submit">Request Execution Support</button>
-
       </form>
 
       <p style="margin-top:14px;">
@@ -121,7 +118,6 @@
   </main>
 
   <script>
-    // Add the fetch API functionality to handle form submission
     document.getElementById("adsForm").addEventListener("submit", async function(e) {
       e.preventDefault();
 
@@ -136,10 +132,14 @@
       });
 
       if (response.ok) {
-        // Redirect to the thank you page
         window.location.href = "/thank-you.html";
       } else {
-        alert("There was an error submitting the form.");
+        let msg = "There was an error submitting the form.";
+        try {
+          const data = await response.json();
+          if (data && data.error) msg = data.error;
+        } catch (_) {}
+        alert(msg);
       }
     });
   </script>
