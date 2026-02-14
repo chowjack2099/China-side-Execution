@@ -36,110 +36,374 @@
         <span></span><span></span><span></span>
       </button>
     </div>
+
+    <div class="mobileNav" id="mobileNav" aria-hidden="true">
+      <a href="#services">Services</a>
+      <a href="#how">Process</a>
+      <a href="#faq">FAQ</a>
+      <a href="#request" class="btn btn--sm">Request</a>
+    </div>
   </header>
 
   <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero__grid">
+        <div class="hero__copy">
+          <div class="pill">US-based clients • China on-the-ground execution</div>
+          <h1>Your On-the-Ground Execution Team in China</h1>
+          <p class="lead">
+            Bestoo Service LLC handles local coordination, persistent follow-ups, and execution in China —
+            so you don’t have to manage suppliers, timelines, and issues remotely.
+          </p>
 
-    <!-- 原内容保持不变 -->
-    <!-- 省略中间 sections（你原有内容不变） -->
+          <div class="hero__cta">
+            <a class="btn" href="#request">Request Execution Support</a>
+            <a class="btn btn--ghost" href="#services">See services</a>
+          </div>
 
-    <!-- REQUEST SECTION -->
+          <div class="trust">
+            <div class="trust__item">
+              <div class="trust__label">Typical response</div>
+              <div class="trust__value">Within 24 hours</div>
+            </div>
+            <div class="trust__item">
+              <div class="trust__label">Focus</div>
+              <div class="trust__value">Execution & clarity</div>
+            </div>
+            <div class="trust__item">
+              <div class="trust__label">Proof</div>
+              <div class="trust__value">Photos / updates</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero__art" aria-hidden="true">
+          <img src="/assets/hero.svg" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <!-- VALUE -->
+    <section class="section section--tight">
+      <div class="container">
+        <div class="valueGrid">
+          <div class="valueCard">
+            <h2>Execution beats endless back-and-forth.</h2>
+            <p class="muted">
+              China-side operations often fail due to time zones, language barriers, and weak follow-up.
+              We bridge that gap with hands-on execution and structured reporting.
+            </p>
+          </div>
+
+          <div class="valueCard valueCard--dark">
+            <h3>Best fit for</h3>
+            <ul class="bullets">
+              <li>US founders & operators working with China suppliers</li>
+              <li>Amazon / DTC teams running sampling & production</li>
+              <li>Businesses needing reliable follow-up and QC coordination</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section" id="services">
+      <div class="container">
+        <div class="sectionHead">
+          <h2>What We Can Execute for You in China</h2>
+          <p class="muted">
+            If a task requires local presence, communication, or persistent follow-up in China,
+            we can execute it on your behalf.
+          </p>
+        </div>
+
+        <div class="cards">
+          <article class="card">
+            <div class="card__icon"><img src="/assets/icon-sourcing.svg" alt="" /></div>
+            <h3>Supplier & Factory Coordination</h3>
+            <p class="muted">Shortlist suppliers, compare quotes, coordinate sampling, and keep timelines on track.</p>
+            <ul class="miniList">
+              <li>Quotation comparison support</li>
+              <li>Sampling follow-up & iterations</li>
+              <li>Production progress tracking</li>
+              <li>Issue escalation & resolution</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="card__icon"><img src="/assets/icon-qc.svg" alt="" /></div>
+            <h3>Quality, Packaging & Documentation</h3>
+            <p class="muted">Reduce risks with structured checks and clear evidence before shipment.</p>
+            <ul class="miniList">
+              <li>Pre-shipment check coordination</li>
+              <li>Packaging / labeling review</li>
+              <li>Third-party inspection coordination</li>
+              <li>Photo/video reporting</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="card__icon"><img src="/assets/icon-logistics.svg" alt="" /></div>
+            <h3>Logistics Coordination & Follow-up</h3>
+            <p class="muted">Coordinate with forwarders, track shipments, and handle local follow-ups.</p>
+            <ul class="miniList">
+              <li>Forwarder coordination</li>
+              <li>Shipment tracking & updates</li>
+              <li>Export docs assistance</li>
+              <li>Delivery issue follow-up</li>
+            </ul>
+          </article>
+
+          <article class="card card--wide">
+            <div class="card__icon"><img src="/assets/icon-custom.svg" alt="" /></div>
+            <h3>Custom Local Tasks</h3>
+            <p class="muted">
+              Have a China-side task that needs hands-on execution? Tell us what you need —
+              we’ll confirm feasibility, scope, and deliverables.
+            </p>
+            <div class="tagRow">
+              <span class="tag">Local coordination</span>
+              <span class="tag">Urgent follow-up</span>
+              <span class="tag">Execution reports</span>
+              <span class="tag">Vendor communication</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW -->
+    <section class="section section--alt" id="how">
+      <div class="container">
+        <div class="sectionHead">
+          <h2>How It Works</h2>
+          <p class="muted">Simple, fast, and designed for clarity.</p>
+        </div>
+
+        <ol class="steps">
+          <li class="step">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3>Share the task</h3>
+              <p class="muted">Describe what needs to be executed in China, with timeline and relevant links/files.</p>
+            </div>
+          </li>
+          <li class="step">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3>We confirm scope</h3>
+              <p class="muted">We clarify deliverables, communication method, and execution approach.</p>
+            </div>
+          </li>
+          <li class="step">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3>We execute & report</h3>
+              <p class="muted">You receive structured updates, evidence (photos/videos), and next steps.</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="notice">
+          <h3>What We Don’t Do</h3>
+          <ul class="bullets">
+            <li><strong>We do not resell products</strong> or take ownership of goods.</li>
+            <li><strong>Clients pay suppliers/logistics providers directly.</strong> We provide execution & coordination services.</li>
+            <li>We focus on <strong>on-the-ground support</strong>, follow-ups, and clear reporting.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- REQUEST -->
     <section class="section" id="request">
       <div class="container">
         <div class="sectionHead">
           <h2>Request Execution Support</h2>
           <p class="muted">
             Send your request. We typically respond within 24 hours.
+            For urgent tasks, mention “urgent” in the timeline field.
           </p>
         </div>
 
         <div class="formGrid">
 
-          <!-- ✅ 仅修改这里 -->
-          <form class="form" id="leadForm">
+          <!-- ✅ 仅修改：Formspree -> /api/send（字段保持原样） -->
+          <form class="form"
+                id="leadForm">
 
             <div class="row">
               <label>
                 Name
-                <input name="name" type="text" required />
+                <input name="name" type="text" placeholder="Your name" required />
               </label>
               <label>
                 Email
-                <input name="email" type="email" required />
+                <input name="email" type="email" placeholder="you@company.com" required />
               </label>
             </div>
 
             <div class="row">
               <label>
-                Company
-                <input name="company" type="text" />
+                Company (optional)
+                <input name="company" type="text" placeholder="Company name" />
               </label>
               <label>
-                Timeline
-                <input name="timeline" type="text" />
+                Timeline (optional)
+                <input name="timeline" type="text" placeholder="e.g., urgent / within 7 days" />
               </label>
             </div>
 
             <label>
               What do you need executed in China?
-              <textarea name="details" rows="6" required></textarea>
+              <textarea name="details" rows="7" placeholder="Describe the task, context, vendors (if any), and desired outcomes." required></textarea>
             </label>
 
             <label class="check">
               <input type="checkbox" required />
-              <span>I understand this is an execution & coordination service.</span>
+              <span>I understand this is an execution & coordination service (not product reselling), and vendor payments are made by the client directly.</span>
             </label>
 
             <button class="btn" type="submit">Submit Request</button>
 
+            <p class="small muted">
+              By submitting, you agree to our <a href="/privacy.html">Privacy Policy</a>.
+            </p>
           </form>
 
+          <aside class="contactCard">
+            <h3>Direct Contact</h3>
+            <p class="muted">Prefer messaging? Reach out anytime:</p>
+
+            <div class="contactList">
+              <a class="contactItem" href="mailto:chowjack2098@gmail.com">
+                <span class="k">Email</span>
+                <span class="v">chowjack2098@gmail.com</span>
+              </a>
+              <a class="contactItem" href="https://wa.me/19192131199" target="_blank" rel="noopener">
+                <span class="k">WhatsApp</span>
+                <span class="v">+1 919 213 1199</span>
+              </a>
+              <a class="contactItem" href="https://t.me/usa12316" target="_blank" rel="noopener">
+                <span class="k">Telegram</span>
+                <span class="v">@usa12316</span>
+              </a>
+              <a class="contactItem" href="https://x.com/chowgong985" target="_blank" rel="noopener">
+                <span class="k">X</span>
+                <span class="v">@chowgong985</span>
+              </a>
+              <a class="contactItem" href="https://www.tiktok.com/@chowgong911" target="_blank" rel="noopener">
+                <span class="k">TikTok</span>
+                <span class="v">@chowgong911</span>
+              </a>
+            </div>
+
+            <div class="note">
+              <strong>Bestoo Service LLC</strong> provides China-side execution support with clear reporting and practical follow-through.
+            </div>
+          </aside>
         </div>
       </div>
     </section>
 
+    <!-- FAQ -->
+    <section class="section section--tight section--alt" id="faq">
+      <div class="container">
+        <div class="sectionHead">
+          <h2>FAQ</h2>
+          <p class="muted">Short answers — no fluff.</p>
+        </div>
+
+        <div class="faq">
+          <details>
+            <summary>Who is this service for?</summary>
+            <p class="muted">US-based founders, operators, and teams who need reliable China-side execution for sourcing, sampling, production, QC, and follow-ups.</p>
+          </details>
+          <details>
+            <summary>Do you take supplier payments or handle product transactions?</summary>
+            <p class="muted">No. Clients pay suppliers and logistics providers directly. We provide execution & coordination services only.</p>
+          </details>
+          <details>
+            <summary>How do you report progress?</summary>
+            <p class="muted">We provide structured written updates and can include photos/videos when needed.</p>
+          </details>
+          <details>
+            <summary>Can you handle urgent tasks?</summary>
+            <p class="muted">Yes. Mention “urgent” in your timeline. We’ll confirm feasibility quickly.</p>
+          </details>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
     <div class="container footer__inner">
-      <p>© <span id="year"></span> Bestoo Service LLC</p>
+      <div class="footer__left">
+        <div class="brand brand--footer">
+          <span class="brand__mark"></span>
+          <div class="brand__stack">
+            <span class="brand__name">Bestoo Service LLC</span>
+            <span class="brand__sub">China-side Execution Support</span>
+          </div>
+        </div>
+        <p class="muted small">
+          © <span id="year"></span> Bestoo Service LLC. All rights reserved.
+        </p>
+      </div>
+      <div class="footer__right">
+        <a href="/privacy.html">Privacy</a>
+        <a href="#request">Request</a>
+      </div>
     </div>
   </footer>
 
   <script src="/main.js"></script>
-
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
-
-    document.getElementById('leadForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      const formData = {
-        name: this.name.value,
-        email: this.email.value,
-        message: `
-Company: ${this.company.value || "-"}
-Timeline: ${this.timeline.value || "-"}
-Details:
-${this.details.value}
-`
-      };
-
-      const response = await fetch('/api/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        window.location.href = "/thank-you.html";
-      } else {
-        alert("Submission failed. Please try again.");
-      }
-    });
   </script>
 
+  <!-- ✅ 新增：仅用于替代 Formspree 提交 -->
+  <script>
+    (function () {
+      const form = document.getElementById('leadForm');
+      if (!form) return;
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const payload = {
+          name: form.querySelector('[name="name"]').value.trim(),
+          email: form.querySelector('[name="email"]').value.trim(),
+          // 把原表单字段拼成一段 message，后端保持 {name,email,message} 结构不变
+          message:
+`Company: ${(form.querySelector('[name="company"]').value || '-').trim()}
+Timeline: ${(form.querySelector('[name="timeline"]').value || '-').trim()}
+Details:
+${(form.querySelector('[name="details"]').value || '').trim()}`
+        };
+
+        try {
+          const res = await fetch('/api/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await res.json().catch(() => ({}));
+
+          if (res.ok && data.success) {
+            window.location.href = '/thank-you.html';
+            return;
+          }
+
+          alert('Submission failed. Please try again.');
+        } catch (err) {
+          alert('Network error. Please try again.');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
