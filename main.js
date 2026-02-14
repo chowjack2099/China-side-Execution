@@ -17,9 +17,10 @@
     });
   }
 
-  // Formspree submit -> redirect to thank-you
-  const form = document.getElementById("leadForm");
-  if (form) {
+  function bindAjaxForm(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -32,7 +33,7 @@
 
       try {
         const payload = new URLSearchParams(new FormData(form));
-        const res = await fetch(form.action, {
+        const res = await fetch(form.action || "/api/send", {
           method: "POST",
           body: payload,
           headers: {
@@ -57,13 +58,4 @@
 
         alert(msg);
       } catch (err) {
-        alert("Network error. Please try again or contact us directly.");
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = oldText;
-        }
-      }
-    });
-  }
-})();
+       
