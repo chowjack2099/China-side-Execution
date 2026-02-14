@@ -1,23 +1,31 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
+    return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
   try {
-    const { name, email, company, timeline, details } = req.body;
-
-    if (!name || !email || !details) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
     const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) return res.status(500).json({ ok: false, error: "Missing RESEND_API_KEY" });
 
-    if (!apiKey) {
-      return res.status(500).json({ message: "API key not configured" });
+    // 兼容：JSON / 表单（Vercel通常已解析到 req.body）
+    const data = req.body || {};
+
+    const name = String(data.name || "").trim();
+    const email = String(data.email || "").trim();
+    const company = String(data.company || "").trim();
+    const timeline = String(data.timeline || "").trim();
+    const source = String(data.source || "website").trim();
+
+    // ✅ 关键：兼容 details / message 两种字段名
+    const details = String(data.details || data.message || "").trim();
+
+    // ✅ name 允许为空（有些表单只有email+message）
+    if (!email || !details) {
+      return res.status(400).json({ ok: false, error: "Missing email or details", got: { hasEmail: !!email, hasDetails: !!details } });
     }
 
-    // 1️⃣ 给你自己发通知邮件
-    await fetch("https://api.resend.com/emails", {
+    // 1) 发给你（通知）
+    const adminResp = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,22 +33,29 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         from: "ChinaExecution <info@chinaexecution.com>",
-        to: ["info@chinaexecution.com"], // 改成你想收件的邮箱
-        subject: "New Lead — China Execution Support",
-        html: `
-          <h2>New Lead Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Company:</strong> ${company || "-"}</p>
-          <p><strong>Timeline:</strong> ${timeline || "-"}</p>
-          <p><strong>Details:</strong></p>
-          <p>${details}</p>
-        `,
+        to: ["info@chinaexecution.com"],
+        reply_to: email,
+        subject: `New Lead (${source}) — ChinaExecution`,
+        text:
+`Name: ${name || "-"}
+Email: ${email}
+Company: ${company || "-"}
+Timeline: ${timeline || "-"}
+Source: ${source}
+
+Details:
+${details}
+`,
       }),
     });
 
-    // 2️⃣ 自动回复客户
-    await fetch("https://api.resend.com/emails", {
+    if (!adminResp.ok) {
+      const t = await adminResp.text();
+      return res.status(500).json({ ok: false, error: "Admin email failed", detail: t });
+    }
+
+    // 2) 自动回复客户
+    const userResp = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,23 +64,29 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         from: "ChinaExecution <info@chinaexecution.com>",
         to: [email],
+        reply_to: "info@chinaexecution.com",
         subject: "We received your request — ChinaExecution",
-        html: `
-          <p>Hi ${name},</p>
-          <p>Thank you for reaching out. We have received your request and will review it shortly.</p>
-          <p>We typically respond within 24 hours.</p>
-          <p>If your matter is urgent, feel free to reply directly to this email.</p>
-          <br/>
-          <p>Best regards,<br/>
-          ChinaExecution Team<br/>
-          Operated by Bestoo Service LLC</p>
-        `,
+        text:
+`Hi${name ? " " + name : ""},
+
+Thanks for reaching out. We received your request and will reply within 24 hours.
+
+Urgent? WhatsApp Business: +1 919 213 1199
+
+— ChinaExecution
+info@chinaexecution.com
+`,
       }),
     });
 
-    return res.status(200).json({ success: true });
-  } catch (error) {
-    console.error("SEND ERROR:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    if (!userResp.ok) {
+      const t = await userResp.text();
+      return res.status(500).json({ ok: false, error: "Auto-reply failed", detail: t });
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: err?.message || "Internal error" });
   }
 }
