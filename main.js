@@ -31,10 +31,14 @@
       }
 
       try {
+        const payload = new URLSearchParams(new FormData(form));
         const res = await fetch(form.action, {
           method: "POST",
-          body: new FormData(form),
-          headers: { Accept: "application/json" },
+          body: payload,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          },
         });
 
         if (res.ok) {
