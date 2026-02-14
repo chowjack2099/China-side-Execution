@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!details || details.length < 3) {
+    if (!details) {
       return respond(req, res, 400, {
         ok: false,
         error: "Missing details/message",
@@ -303,9 +303,9 @@ function isEmail(v) {
 
 function escapeHtml(str) {
   return String(str || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
