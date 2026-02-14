@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     const REPLY_TO_CUSTOMER = "info@chinaexecution.com";
 
     // ---- 1) Email to you (lead notification) ----
-    const leadSubject = `New Lead — ChinaExecution (${source || "website"})`;
+    const leadSubject = `New Lead - ChinaExecution (${source || "website"})`;
 
     const leadText =
 `New lead received
@@ -87,13 +87,13 @@ ${details}
 </div>
 `;
 
-    // ---- 2) Auto-reply to customer (PUT YOUR FINAL COPY HERE) ----
-    const customerSubject = "We received your request — ChinaExecution";
+    // ---- 2) Auto-reply to customer ----
+    const customerSubject = "We received your request - ChinaExecution";
 
     const customerText =
 `Hi${name ? " " + name : ""},
 
-Thanks for reaching out to ChinaExecution. We’ve received your request and will respond within 24 hours.
+Thanks for reaching out to ChinaExecution. We've received your request and will respond within 24 hours.
 
 For faster coordination, you can also contact us:
 WhatsApp Business: +1 919 213 1199
@@ -104,7 +104,7 @@ To help us move quickly, please reply with:
 2) Timeline / deadline
 3) Any supplier links, files, or photos
 
-— ChinaExecution (Bestoo Service LLC)
+- ChinaExecution (Bestoo Service LLC)
 `;
 
     const customerHtml = `
@@ -112,7 +112,7 @@ To help us move quickly, please reply with:
   <p>Hi${name ? " " + escapeHtml(name) : ""},</p>
 
   <p>
-    Thanks for reaching out to <b>ChinaExecution</b>. We’ve received your request and will respond within <b>24 hours</b>.
+    Thanks for reaching out to <b>ChinaExecution</b>. We've received your request and will respond within <b>24 hours</b>.
   </p>
 
   <p style="margin:14px 0 6px"><b>For faster coordination:</b></p>
@@ -128,7 +128,7 @@ To help us move quickly, please reply with:
     <li>Any supplier links, files, or photos</li>
   </ol>
 
-  <p style="margin-top:16px">— ChinaExecution (Bestoo Service LLC)</p>
+  <p style="margin-top:16px">- ChinaExecution (Bestoo Service LLC)</p>
 </div>
 `;
 
@@ -155,7 +155,6 @@ To help us move quickly, please reply with:
 
     // ---- Return: B mode (HTML form => redirect, fetch => JSON) ----
     return respond(req, res, 200, { ok: true });
-
   } catch (err) {
     // In case Resend returns error / parse error
     console.error("SEND_ERROR:", err);
@@ -166,26 +165,41 @@ To help us move quickly, please reply with:
 /* ---------------- Helpers ---------------- */
 
 async function readBody(req, contentType) {
-  // Vercel sometimes already parses req.body for JSON,
-  // but to be safe we read raw stream if body is not available.
-  if (req.body && typeof req.body === "object") return req.body;
+  // Vercel might parse body as object/string/buffer depending on config.
+  if (req.body !== undefined && req.body !== null) {
+    if (typeof req.body === "object" && !Buffer.isBuffer(req.body)) return req.body;
+    const rawBody = Buffer.isBuffer(req.body) ? req.body.toString("utf8") : String(req.body);
+    return parseRawBody(rawBody, contentType);
+  }
 
   const raw = await readRaw(req);
+  return parseRawBody(raw, contentType);
+}
+
+function parseRawBody(raw, contentType) {
   if (!raw) return {};
 
   if (contentType.includes("application/json")) {
-    try { return JSON.parse(raw); } catch { return {}; }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
   }
 
   if (contentType.includes("application/x-www-form-urlencoded")) {
     return Object.fromEntries(new URLSearchParams(raw));
   }
 
-  // fallback: try urlencoded
+  // fallback: try JSON first, then urlencoded
   try {
-    return Object.fromEntries(new URLSearchParams(raw));
+    return JSON.parse(raw);
   } catch {
-    return {};
+    try {
+      return Object.fromEntries(new URLSearchParams(raw));
+    } catch {
+      return {};
+    }
   }
 }
 
@@ -227,7 +241,7 @@ function respond(req, res, status, json) {
       return res.end();
     }
     // failure: show a minimal message (no JSON popup)
-    res.statusCode = 400;
+    res.statusCode = status;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     return res.end("Submission failed. Please try again or contact us directly.");
   }
@@ -246,9 +260,9 @@ function isEmail(v) {
 
 function escapeHtml(str) {
   return String(str || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
