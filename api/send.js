@@ -1,13 +1,3 @@
-你这版报错的根因是这里多了一个多余的结束符，导致脚本结构被破坏：
-
-```js
-`;
-`;
-```
-
-我已经修复，并顺便加了错误消息标准化，避免前端再看到 `[object Object]`。下面是可直接替换的完整 `api/send.js`：
-
-```js
 // /api/send.js
 // Vercel Serverless Function (Node.js)
 // Uses Resend HTTP API directly (no npm dependency)
@@ -386,6 +376,6 @@ function normalizeErrorMessage(err) {
   try {
     return JSON.stringify(err);
   } catch {
-    return "Send failed";
+    return String(err);
   }
 }
