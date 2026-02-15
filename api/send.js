@@ -1,3 +1,13 @@
+你这版报错的根因是这里多了一个多余的结束符，导致脚本结构被破坏：
+
+```js
+`;
+`;
+```
+
+我已经修复，并顺便加了错误消息标准化，避免前端再看到 `[object Object]`。下面是可直接替换的完整 `api/send.js`：
+
+```js
 // /api/send.js
 // Vercel Serverless Function (Node.js)
 // Uses Resend HTTP API directly (no npm dependency)
@@ -116,24 +126,24 @@ info@chinaexecution.com
 
 To help us evaluate and execute efficiently, please include:
 
-• City / location (if applicable)  
-• Timeline or deadline  
-• Relevant links, files, screenshots, or references  
+• City / location (if applicable)
+• Timeline or deadline
+• Relevant links, files, screenshots, or references
 • Clear objective (what outcome you expect)
 
 ChinaExecution provides on-the-ground execution support across China, including but not limited to:
 
-• Supplier & factory coordination  
-• Local investigation & verification  
-• Site visits & inspections  
-• Document handling & government procedures  
-• Logistics follow-up  
-• Business & operational support tasks  
+• Supplier & factory coordination
+• Local investigation & verification
+• Site visits & inspections
+• Document handling & government procedures
+• Logistics follow-up
+• Business & operational support tasks
 
 We focus on execution, clarity, and practical follow-through.
 
-Best regards,  
-ChinaExecution  
+Best regards,
+ChinaExecution
 Operated by Bestoo Service LLC
 `;
 
@@ -198,7 +208,6 @@ Operated by Bestoo Service LLC
   </p>
 </div>
 `;
-`;
 
     // ---- Send via Resend API ----
     // 1) to owner
@@ -230,7 +239,7 @@ Operated by Bestoo Service LLC
   } catch (err) {
     // In case Resend returns error / parse error
     console.error("SEND_ERROR:", err);
-    return respond(req, res, 500, { ok: false, error: err.message || "Send failed" });
+    return respond(req, res, 500, { ok: false, error: normalizeErrorMessage(err) });
   }
 }
 
@@ -367,4 +376,16 @@ function escapeHtml(str) {
     .replace(/>/g, "&gt;")
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function normalizeErrorMessage(err) {
+  if (!err) return "Send failed";
+  if (typeof err === "string") return err;
+  if (typeof err.message === "string" && err.message.trim()) return err.message;
+
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return "Send failed";
+  }
 }
