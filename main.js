@@ -50,9 +50,9 @@
         let msg = "Submission failed. Please try again or contact us directly.";
         try {
           const data = await res.json();
-          if (data && data.error) msg = data.error;
+          if (data && data.error) msg = toMessage(data.error);
           if (data && data.errors && data.errors.length) {
-            msg = data.errors.map((x) => x.message).join(" ");
+            msg = data.errors.map((x) => toMessage(x && x.message ? x.message : x)).join(" ");
           }
         } catch (_) {}
 
@@ -71,4 +71,18 @@
   // Unified form submit -> redirect to thank-you
   bindAjaxForm("leadForm");
   bindAjaxForm("adsForm");
+
+  function toMessage(v) {
+    if (typeof v === "string") return v;
+    if (v == null) return "Submission failed. Please try again or contact us directly.";
+    if (typeof v === "object") {
+      if (typeof v.message === "string" && v.message) return v.message;
+      try {
+        return JSON.stringify(v);
+      } catch (_) {
+        return String(v);
+      }
+    }
+    return String(v);
+  }
 })();
