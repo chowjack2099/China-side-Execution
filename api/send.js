@@ -102,100 +102,42 @@ ${details}
     const customerText =
 `Hi${name ? " " + name : ""},
 
-Thank you for contacting ChinaExecution.
+Thanks for reaching out to ChinaExecution. We've received your request and will respond within 24 hours.
 
-We have received your request. Our team will review the details and respond within 24 hours.
+For faster coordination, you can also contact us:
+WhatsApp Business: +1 919 213 1199
+Email: info@chinaexecution.com
 
-For faster coordination, you may contact us directly:
+To help us move quickly, please reply with:
+1) City/Factory location (if known)
+2) Timeline / deadline
+3) Any supplier links, files, or photos
 
-WhatsApp Business:
-https://wa.me/19192131199
-
-Email:
-info@chinaexecution.com
-
-To help us evaluate and execute efficiently, please include:
-
-• City / location (if applicable)
-• Timeline or deadline
-• Relevant links, files, screenshots, or references
-• Clear objective (what outcome you expect)
-
-ChinaExecution provides on-the-ground execution support across China, including but not limited to:
-
-• Supplier & factory coordination
-• Local investigation & verification
-• Site visits & inspections
-• Document handling & government procedures
-• Logistics follow-up
-• Business & operational support tasks
-
-We focus on execution, clarity, and practical follow-through.
-
-Best regards,
-ChinaExecution
-Operated by Bestoo Service LLC
+- ChinaExecution (Bestoo Service LLC)
 `;
 
     const customerHtml = `
 <div style="font-family:Arial,sans-serif;line-height:1.7;color:#111">
-  <p>Hi ${escapeHtml(name || "there")},</p>
+  <p>Hi${name ? " " + escapeHtml(name) : ""},</p>
 
   <p>
-    Thank you for contacting <strong>ChinaExecution</strong>.
-    We have received your request and will review the details carefully.
-    Our team will respond within <strong>24 hours</strong>.
+    Thanks for reaching out to <b>ChinaExecution</b>. We've received your request and will respond within <b>24 hours</b>.
   </p>
 
-  <p style="margin:16px 0 6px;"><strong>For faster coordination:</strong></p>
-
-  <ul style="margin:6px 0 16px 18px;">
-    <li>
-      WhatsApp Business:
-      <a href="https://wa.me/19192131199" target="_blank" rel="noopener">
-        +1 919 213 1199
-      </a>
-    </li>
-    <li>
-      Email:
-      <a href="mailto:info@chinaexecution.com">
-        info@chinaexecution.com
-      </a>
-    </li>
+  <p style="margin:14px 0 6px"><b>For faster coordination:</b></p>
+  <ul style="margin:6px 0 14px 18px">
+    <li>WhatsApp Business: <a href="https://wa.me/19192131199" target="_blank" rel="noopener">+1 919 213 1199</a></li>
+    <li>Email: <a href="mailto:info@chinaexecution.com">info@chinaexecution.com</a></li>
   </ul>
 
-  <p style="margin:16px 0 6px;"><strong>To help us evaluate and execute efficiently, please include:</strong></p>
+  <p style="margin:14px 0 6px"><b>To help us move quickly, please reply with:</b></p>
+  <ol style="margin:6px 0 14px 18px">
+    <li>City / Factory location (if known)</li>
+    <li>Timeline / deadline</li>
+    <li>Any supplier links, files, or photos</li>
+  </ol>
 
-  <ul style="margin:6px 0 16px 18px;">
-    <li>City / location (if applicable)</li>
-    <li>Timeline or deadline</li>
-    <li>Relevant links, files, screenshots, or references</li>
-    <li>Clear objective (what outcome you expect)</li>
-  </ul>
-
-  <p>
-    ChinaExecution provides on-the-ground execution support across China,
-    including but not limited to:
-  </p>
-
-  <ul style="margin:6px 0 16px 18px;">
-    <li>Supplier & factory coordination</li>
-    <li>Local investigation & verification</li>
-    <li>Site visits & inspections</li>
-    <li>Document handling & government procedures</li>
-    <li>Logistics follow-up</li>
-    <li>Business & operational support tasks</li>
-  </ul>
-
-  <p>
-    We focus on execution, clarity, and practical follow-through.
-  </p>
-
-  <p style="margin-top:20px;">
-    Best regards,<br/>
-    <strong>ChinaExecution</strong><br/>
-    Operated by Bestoo Service LLC
-  </p>
+  <p style="margin-top:16px">- ChinaExecution (Bestoo Service LLC)</p>
 </div>
 `;
 
