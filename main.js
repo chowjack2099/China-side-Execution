@@ -43,6 +43,7 @@
         });
 
         if (res.ok) {
+          trackLeadEvents(formId);
           window.location.href = "/thank-you.html";
           return;
         }
@@ -71,6 +72,15 @@
   // Unified form submit -> redirect to thank-you
   bindAjaxForm("leadForm");
   bindAjaxForm("adsForm");
+
+  function trackLeadEvents(formId) {
+    if (typeof window.fbq !== "function") return;
+    window.fbq("track", "Lead");
+    window.fbq("trackCustom", "FormSubmitSuccess", {
+      form_id: formId,
+      page_path: window.location.pathname,
+    });
+  }
 
   function toMessage(v) {
     if (typeof v === "string") return v;
