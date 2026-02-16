@@ -22,7 +22,6 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
-    // For direct browser visit: show Method not allowed (expected)
     return res.status(405).send("Method not allowed");
   }
 
@@ -44,23 +43,17 @@ export default async function handler(req, res) {
     const source = sanitize(data.source || data.page || data.utm_source || "");
 
     if (!email || !isEmail(email)) {
-      return respond(req, res, 400, {
-        ok: false,
-        error: "Invalid email",
-      });
+      return respond(req, res, 400, { ok: false, error: "Invalid email" });
     }
 
     if (!details) {
-      return respond(req, res, 400, {
-        ok: false,
-        error: "Missing details/message",
-      });
+      return respond(req, res, 400, { ok: false, error: "Missing details/message" });
     }
 
     // ---- Your identities ----
     const OWNER_TO = process.env.LEAD_TO_EMAIL || "info@chinaexecution.com";
     const FROM = process.env.RESEND_FROM || "ChinaExecution <info@chinaexecution.com>"; // must be verified in Resend
-    const REPLY_TO_OWNER = email; // so you can reply directly to the lead
+    const REPLY_TO_OWNER = email;
     const REPLY_TO_CUSTOMER = OWNER_TO;
 
     // ---- 1) Email to you (lead notification) ----
@@ -96,48 +89,106 @@ ${details}
 </div>
 `;
 
-    // ---- 2) Auto-reply to customer ----
+    // ---- 2) Auto-reply to customer (your updated copy) ----
     const customerSubject = "We received your request - ChinaExecution";
 
     const customerText =
 `Hi${name ? " " + name : ""},
 
-Thanks for reaching out to ChinaExecution. We've received your request and will respond within 24 hours.
+Thank you for contacting ChinaExecution.
 
-For faster coordination, you can also contact us:
-WhatsApp Business: +1 919 213 1199
-Email: info@chinaexecution.com
+We have received your request. Our team will review the details and respond within 24 hours.
 
-To help us move quickly, please reply with:
-1) City/Factory location (if known)
-2) Timeline / deadline
-3) Any supplier links, files, or photos
+For faster coordination, you may contact us directly:
 
-- ChinaExecution (Bestoo Service LLC)
+WhatsApp Business:
+https://wa.me/19192131199
+
+Email:
+info@chinaexecution.com
+
+To help us evaluate and execute efficiently, please include:
+
+• City / location (if applicable)
+• Timeline or deadline
+• Relevant links, files, screenshots, or references
+• Clear objective (what outcome you expect)
+
+ChinaExecution provides on-the-ground execution support across China, including but not limited to:
+
+• Supplier & factory coordination
+• Local investigation & verification
+• Site visits & inspections
+• Document handling & government procedures
+• Logistics follow-up
+• Business & operational support tasks
+
+We focus on execution, clarity, and practical follow-through.
+
+Best regards,
+ChinaExecution
+Operated by Bestoo Service LLC
 `;
 
     const customerHtml = `
 <div style="font-family:Arial,sans-serif;line-height:1.7;color:#111">
-  <p>Hi${name ? " " + escapeHtml(name) : ""},</p>
+  <p>Hi ${escapeHtml(name || "there")},</p>
 
   <p>
-    Thanks for reaching out to <b>ChinaExecution</b>. We've received your request and will respond within <b>24 hours</b>.
+    Thank you for contacting <strong>ChinaExecution</strong>.
+    We have received your request and will review the details carefully.
+    Our team will respond within <strong>24 hours</strong>.
   </p>
 
-  <p style="margin:14px 0 6px"><b>For faster coordination:</b></p>
-  <ul style="margin:6px 0 14px 18px">
-    <li>WhatsApp Business: <a href="https://wa.me/19192131199" target="_blank" rel="noopener">+1 919 213 1199</a></li>
-    <li>Email: <a href="mailto:info@chinaexecution.com">info@chinaexecution.com</a></li>
+  <p style="margin:16px 0 6px;"><strong>For faster coordination:</strong></p>
+
+  <ul style="margin:6px 0 16px 18px;">
+    <li>
+      WhatsApp Business:
+      <a href="https://wa.me/19192131199" target="_blank" rel="noopener">
+        +1 919 213 1199
+      </a>
+    </li>
+    <li>
+      Email:
+      <a href="mailto:info@chinaexecution.com">
+        info@chinaexecution.com
+      </a>
+    </li>
   </ul>
 
-  <p style="margin:14px 0 6px"><b>To help us move quickly, please reply with:</b></p>
-  <ol style="margin:6px 0 14px 18px">
-    <li>City / Factory location (if known)</li>
-    <li>Timeline / deadline</li>
-    <li>Any supplier links, files, or photos</li>
-  </ol>
+  <p style="margin:16px 0 6px;"><strong>To help us evaluate and execute efficiently, please include:</strong></p>
 
-  <p style="margin-top:16px">- ChinaExecution (Bestoo Service LLC)</p>
+  <ul style="margin:6px 0 16px 18px;">
+    <li>City / location (if applicable)</li>
+    <li>Timeline or deadline</li>
+    <li>Relevant links, files, screenshots, or references</li>
+    <li>Clear objective (what outcome you expect)</li>
+  </ul>
+
+  <p>
+    ChinaExecution provides on-the-ground execution support across China,
+    including but not limited to:
+  </p>
+
+  <ul style="margin:6px 0 16px 18px;">
+    <li>Supplier & factory coordination</li>
+    <li>Local investigation & verification</li>
+    <li>Site visits & inspections</li>
+    <li>Document handling & government procedures</li>
+    <li>Logistics follow-up</li>
+    <li>Business & operational support tasks</li>
+  </ul>
+
+  <p>
+    We focus on execution, clarity, and practical follow-through.
+  </p>
+
+  <p style="margin-top:20px;">
+    Best regards,<br/>
+    <strong>ChinaExecution</strong><br/>
+    Operated by Bestoo Service LLC
+  </p>
 </div>
 `;
 
@@ -166,10 +217,8 @@ To help us move quickly, please reply with:
       console.error("AUTO_REPLY_ERROR:", autoReplyErr);
     }
 
-    // ---- Return: B mode (HTML form => redirect, fetch => JSON) ----
     return respond(req, res, 200, { ok: true });
   } catch (err) {
-    // In case Resend returns error / parse error
     console.error("SEND_ERROR:", err);
     return respond(req, res, 500, { ok: false, error: normalizeErrorMessage(err) });
   }
