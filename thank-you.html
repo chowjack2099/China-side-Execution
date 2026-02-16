@@ -19,6 +19,12 @@
   'https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', '1255551253438419');
   fbq('track', 'PageView');
+
+  // Conversion events on thank-you page
+  fbq('track', 'Lead');
+  fbq('trackCustom', 'FormSubmitSuccess', {
+    page_path: '/thank-you.html'
+  });
   </script>
   <!-- End Meta Pixel Code -->
 </head>
